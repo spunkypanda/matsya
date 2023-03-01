@@ -27,7 +27,10 @@ func WalletBalanceHandler(w http.ResponseWriter, r *http.Request, ctx context.Co
 		return
 	}
 
-	balance := rpc.GetWalletBalance(walletAddress)
+	client := rpc.GetNodeProvider()
+	defer client.Close()
+
+	balance := rpc.GetWalletBalance(client, walletAddress)
 	value := rpc.ToDecimal(balance, 18)
 
 	w.Header().Set("Content-Type", "application/json")
