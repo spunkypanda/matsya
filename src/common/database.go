@@ -2,13 +2,12 @@ package common
 
 import (
 	"fmt"
-	"log"
 	"matsya/src/config"
 
 	"github.com/jmoiron/sqlx"
 )
 
-func GetConnection() *sqlx.DB {
+func GetConnection() (*sqlx.DB, error) {
 	dbConfig := config.GetConfigMap("database")
 
 	dialect := dbConfig["dialect"]
@@ -20,9 +19,9 @@ func GetConnection() *sqlx.DB {
 
 	db, err := sqlx.Connect(dialect, connectionString)
 	if err != nil {
-		log.Fatal(err)
 		fmt.Printf(">> error: %s", err.Error())
+		return nil, err
 	}
 
-	return db
+	return db, nil
 }
