@@ -1,0 +1,36 @@
+host:
+  address: 127.0.0.1 
+  port: 3000
+  domain: 127.0.0.1:3000
+  protocol: http
+  enable_cors: false
+
+rpc:
+  https:
+
+database:
+  dialect: postgres
+  host: localhost
+  port: 5432
+  user:
+  database_name:
+  sslmode:
+  password:
+
+jwt:
+  secret:
+  expiryMinutes:
+
+logger:
+  persist_in_db:
+  redaction:
+
+redis:
+  host: localhost
+  port: 6379
+  password:
+  db: 0
+  channels:
+    # - test
+    - events
+
