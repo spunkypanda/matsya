@@ -41,6 +41,18 @@ func WalletBalanceHandler(w http.ResponseWriter, r *http.Request, ctx context.Co
 	json.NewEncoder(w).Encode(response)
 }
 
+func CurrentBlockHandler(w http.ResponseWriter, r *http.Request, ctx context.Context) {
+	client := rpc.GetNodeProvider()
+	defer client.Close()
+
+	blockData := rpc.GetLatestBlock(client)
+
+	w.Header().Set("Content-Type", "application/json")
+
+	response := map[string]interface{}{"block": blockData}
+	json.NewEncoder(w).Encode(response)
+}
+
 func BlockHandler(w http.ResponseWriter, r *http.Request, ctx context.Context) {
 	blockNoString := r.URL.Query().Get("block")
 
@@ -92,10 +104,11 @@ func TransactionHandler(w http.ResponseWriter, r *http.Request, ctx context.Cont
 	defer client.Close()
 
 	transaction := rpc.GetTransactionByHash(client, hash)
+	parseTxn := rpc.ParseTransactionBaseInfo(transaction)
 
 	w.Header().Set("Content-Type", "application/json")
 
-	response := map[string]interface{}{"transaction": transaction}
+	response := map[string]interface{}{"transaction": parseTxn}
 	json.NewEncoder(w).Encode(response)
 }
 
@@ -130,6 +143,7 @@ func Serve(port string) {
 	http.HandleFunc("/balance", withContext(WalletBalanceHandler, ctx))
 	http.HandleFunc("/transaction", withContext(TransactionHandler, ctx))
 	http.HandleFunc("/block", withContext(BlockHandler, ctx))
+	http.HandleFunc("/block/current", withContext(CurrentBlockHandler, ctx))
 
 	fmt.Println("Listening on ", port)
 	http.ListenAndServe(port, nil)

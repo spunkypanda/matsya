@@ -45,7 +45,12 @@ func GetString(key string) string {
 	return viper.GetString(key)
 }
 
-// GetFlag Fetch config flag
+// GetUint64 Fetch config uint64 value for key
+func GetUint64(key string) uint64 {
+	return viper.GetUint64(key)
+}
+
+// GetFlag Fetch config flag for key
 func GetFlag(key string) bool {
 	return viper.GetBool(key)
 }
