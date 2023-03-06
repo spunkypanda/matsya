@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"math/big"
 	"matsya/src/common"
+	"matsya/src/config"
+	"matsya/src/daemon"
 	"matsya/src/rpc"
 	"matsya/src/services"
 	"net/http"
@@ -128,6 +130,42 @@ func ChainsHandler(w http.ResponseWriter, r *http.Request, ctx context.Context) 
 	json.NewEncoder(w).Encode(chains)
 }
 
+func TransactionDataHandler(w http.ResponseWriter, r *http.Request, ctx context.Context) {
+	projectID := config.GetString("bigquery.project_id")
+
+	transactions, err := daemon.GetTransactionsData(projectID)
+
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+
+		response := map[string]interface{}{"message": err.Error()}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(transactions)
+}
+
+func BlockDataHandler(w http.ResponseWriter, r *http.Request, ctx context.Context) {
+	projectID := config.GetString("bigquery.project_id")
+
+	blocks, err := daemon.GetBlocksData(projectID)
+
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+
+		response := map[string]interface{}{"message": err.Error()}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(blocks)
+}
+
 func withContext(handler common.CustomHandler, ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx = context.WithValue(ctx, "query", r.URL.Query())
@@ -144,6 +182,9 @@ func Serve(port string) {
 	http.HandleFunc("/transaction", withContext(TransactionHandler, ctx))
 	http.HandleFunc("/block", withContext(BlockHandler, ctx))
 	http.HandleFunc("/block/current", withContext(CurrentBlockHandler, ctx))
+
+	http.HandleFunc("/bigquery/blocks", withContext(BlockDataHandler, ctx))
+	http.HandleFunc("/bigquery/transactions", withContext(TransactionDataHandler, ctx))
 
 	fmt.Println("Listening on ", port)
 	http.ListenAndServe(port, nil)

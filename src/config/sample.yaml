@@ -8,6 +8,12 @@ host:
 rpc:
   https:
 
+# mode: api
+# mode: daemon
+
+bigquery:
+  project_id:
+
 database:
   dialect: postgres
   host: localhost
